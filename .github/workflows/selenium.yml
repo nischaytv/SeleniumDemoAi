@@ -21,9 +21,22 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Print Base64
+        run: |
+          echo "----- BASE64 INPUT -----"
+          echo "${{ github.event.inputs.xml_base64 }}"
+
       - name: Decode XML
         run: |
-          printf "%s" "${{ github.event.inputs.xml_base64 }}" | base64 -d > dynamic-testng.xml
+          printf "%s" "${{ github.event.inputs.xml_base64 }}" | base64 --decode > dynamic-testng.xml
+
+      - name: Verify XML
+        run: |
+          echo "----- FILE SIZE -----"
+          ls -lh dynamic-testng.xml
+      
+          echo "----- XML CONTENT -----"
+          cat dynamic-testng.xml
 
       - name: Run tests
         run: |
