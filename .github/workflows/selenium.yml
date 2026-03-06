@@ -1,0 +1,30 @@
+name: Run Selenium Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      testng_xml:
+        description: "Dynamic TestNG XML"
+        required: true
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Create XML
+        run: |
+          echo '${{ github.event.inputs.testng_xml }}' > dynamic-testng.xml
+
+      - name: Run tests
+        run: |
+          mvn test -Dsurefire.suiteXmlFiles=dynamic-testng.xml
