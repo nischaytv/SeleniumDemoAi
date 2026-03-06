@@ -36,7 +36,7 @@ jobs:
         run: |
           echo "----- FILE SIZE -----"
           ls -lh dynamic-testng.xml
-
+          
           echo "----- XML CONTENT -----"
           cat dynamic-testng.xml
 
@@ -53,20 +53,12 @@ jobs:
           echo "PASSED=$PASSED" >> $GITHUB_ENV
           echo "FAILED=$FAILED" >> $GITHUB_ENV
 
-      - name: Upload Test Reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: selenium-report
-          path: target/surefire-reports
-
       - name: Send Results to n8n
         if: always()
         run: |
-          curl -X POST YOUR_N8N_WEBHOOK_URL \
+          curl -X POST https://nisu1.app.n8n.cloud/webhook-test/test-results \
           -H "Content-Type: application/json" \
           -d '{
-                "status": "completed",
                 "passed": "'${{ env.PASSED }}'",
                 "failed": "'${{ env.FAILED }}'",
                 "run_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
