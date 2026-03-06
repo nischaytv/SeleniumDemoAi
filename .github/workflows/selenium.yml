@@ -24,11 +24,11 @@ jobs:
       - name: Print Base64
         run: |
           echo "----- BASE64 INPUT -----"
-          echo "${{ github.event.inputs.xml_base64 }}"
+          echo "${{ github.event.inputs.testng_xml }}"
 
       - name: Decode XML
         run: |
-          printf "%s" "${{ github.event.inputs.xml_base64 }}" | base64 --decode > dynamic-testng.xml
+          printf "%s" "${{ github.event.inputs.testng_xml }}" | base64 --decode > dynamic-testng.xml
 
       - name: Verify XML
         run: |
