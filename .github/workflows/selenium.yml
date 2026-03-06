@@ -21,9 +21,9 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Create XML
+      - name: Decode XML
         run: |
-          echo '${{ github.event.inputs.testng_xml }}' > dynamic-testng.xml
+          printf "%s" "${{ github.event.inputs.xml_base64 }}" | base64 -d > dynamic-testng.xml
 
       - name: Run tests
         run: |
