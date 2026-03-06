@@ -14,9 +14,11 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v4
+      - name: Checkout Repo
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
@@ -34,10 +36,38 @@ jobs:
         run: |
           echo "----- FILE SIZE -----"
           ls -lh dynamic-testng.xml
-      
+
           echo "----- XML CONTENT -----"
           cat dynamic-testng.xml
 
-      - name: Run tests
+      - name: Run Selenium Tests
         run: |
           mvn test -Dsurefire.suiteXmlFiles=dynamic-testng.xml
+
+      - name: Extract Test Results
+        if: always()
+        run: |
+          PASSED=$(grep -o 'tests="[0-9]*"' target/surefire-reports/*.xml | head -1 | grep -o '[0-9]*')
+          FAILED=$(grep -o 'failures="[0-9]*"' target/surefire-reports/*.xml | head -1 | grep -o '[0-9]*')
+
+          echo "PASSED=$PASSED" >> $GITHUB_ENV
+          echo "FAILED=$FAILED" >> $GITHUB_ENV
+
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-report
+          path: target/surefire-reports
+
+      - name: Send Results to n8n
+        if: always()
+        run: |
+          curl -X POST YOUR_N8N_WEBHOOK_URL \
+          -H "Content-Type: application/json" \
+          -d '{
+                "status": "completed",
+                "passed": "'${{ env.PASSED }}'",
+                "failed": "'${{ env.FAILED }}'",
+                "run_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              }'
